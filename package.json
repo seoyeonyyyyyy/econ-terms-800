@@ -1,0 +1,9 @@
+{
+  "name": "econ-terms-800",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/"
+  }
+}
