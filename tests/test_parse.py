@@ -48,6 +48,13 @@ class TestSplitRelated(unittest.TestCase):
         self.assertNotIn("연관검색어", definition)
         self.assertTrue(definition.endswith("취한다."))
 
+    def test_한_줄로_합쳐진_뒤에도_분리한다(self):
+        # join_wrapped가 먼저 돌아 문단이 한 줄이 된 상태로 들어온다
+        body = "경기는 호황과 불황을 반복한다. 연관검색어 경기종합지수, 동행종합지수"
+        definition, related = split_related(body)
+        self.assertEqual(related, ["경기종합지수", "동행종합지수"])
+        self.assertEqual(definition, "경기는 호황과 불황을 반복한다.")
+
     def test_연관검색어가_없으면_빈_목록(self):
         definition, related = split_related("설명만 있다.")
         self.assertEqual(related, [])
@@ -107,3 +114,20 @@ class TestSideIndex(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TestPickMarksByChars(unittest.TestCase):
+    def test_줄_수가_아니라_글자_수로_잰다(self):
+        from tools.parse import pick_marks
+        # 0번: 수식 블록(짧은 줄 5개), 6번: 진짜 본문(긴 줄 2개)
+        cands = [(0, "생산확산지수"), (6, "생산확산지수")]
+        cum = [0, 6, 10, 14, 18, 22, 26, 32, 232, 432]
+        got = pick_marks(cands, total=9, cum=cum)
+        self.assertEqual(got, [(6, "생산확산지수")], "글자 수로는 뒤쪽 본문이 이긴다")
+
+class TestHeaderStrip(unittest.TestCase):
+    def test_단독_줄_헤더를_지운다(self):
+        self.assertEqual(clean_lines("I 경제금융용어 800선\n본문이 여기 있다."), ["본문이 여기 있다."])
+
+    def test_본문에_붙은_헤더도_벗겨낸다(self):
+        page = "I 경제금융용어 800선 크게 후원형·대출형 등으로 구분된다."
+        self.assertEqual(clean_lines(page), ["크게 후원형·대출형 등으로 구분된다."])

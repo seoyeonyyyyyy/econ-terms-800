@@ -5,22 +5,29 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from tools.schema import build_record
 
-HEADER = "I 경제금융용어 800선"
+# 페이지 헤더는 단독 줄로도, 다음 페이지 첫 문장에 붙은 채로도 나온다
+# ("I 경제금융용어 800선 크게 후원(기부)형·…"). 접두사로 벗겨내야 둘 다 잡힌다.
+HEADER = re.compile(r"^[Il|]?\s*경제금융용어\s*800선\s*")
 PAGE_NO = re.compile(r"^\d{1,3}$")
 CHOSUNG_ONLY = re.compile(r"^[ㄱ-ㅎ]$")
 ROMAN_NO = re.compile(r"^[ivxl]{1,6}$", re.I)
 SIDE_INDEX = re.compile(r"^[ㄱ-ㅎ]\s+|\s+[ㄱ-ㅎ]$")
-RELATED = re.compile(r"^연관검색어\s*(.+)$", re.M)
+# 줄머리 앵커를 쓰면 안 된다. join_wrapped가 문단을 한 줄로 합친 뒤에 부르므로
+# "…있다. 연관검색어 경기종합지수"처럼 문장 한가운데에 놓인다(실측 487건 실패).
+RELATED = re.compile(r"연관검색어\s*(.+)", re.S)
 # 문장이 끝났다고 볼 수 있는 꼬리
 CLOSED = re.compile(r"[.)%\d]$|다$")
 
 def clean_lines(page_text: str, running_heads: set[str] | None = None) -> list[str]:
     # 측면 초성 인덱스가 줄머리나 줄끝에 달라붙는다 ("ㅇ 외국환포지션", "…개인들로부 ㅋ").
     # 단독 줄로만 걸러내면 용어명을 못 알아보고 정의에도 찌꺼기가 남는다.
-    lines = [SIDE_INDEX.sub("", ln.strip()).strip() for ln in page_text.split("\n")]
+    lines = [
+        SIDE_INDEX.sub("", HEADER.sub("", ln.strip())).strip()
+        for ln in page_text.split("\n")
+    ]
     kept = [
         ln for ln in lines
-        if ln and ln != HEADER and not PAGE_NO.match(ln)
+        if ln and not PAGE_NO.match(ln)
         and not ROMAN_NO.match(ln) and not CHOSUNG_ONLY.match(ln)
     ]
     if not kept:
@@ -74,17 +81,26 @@ def _match_name(line: str, names, by_prefix: dict[str, list[str]]) -> str | None
             return cand
     return None
 
-def pick_marks(cands: list[tuple[int, str]], total: int) -> list[tuple[int, str]]:
+def pick_marks(cands: list[tuple[int, str]], total: int,
+               cum: list[int] | None = None) -> list[tuple[int, str]]:
     """같은 용어가 여러 번 걸리면 뒤따르는 본문이 가장 긴 등장을 고른다.
 
     첫 등장을 쓰면 안 된다. 러닝 헤드가 다음 페이지의 용어를 미리 가리키는 경우가 있어
     첫 등장이 머리글일 수 있고, 그러면 정의가 비거나 옆 용어의 꼬리가 붙는다(실측 7건).
     머리글 바로 다음 줄에는 다른 용어가 오므로 간격이 짧아 자연히 탈락한다.
+
+    `cum`(누적 문자 수)을 주면 줄 개수가 아니라 글자 수로 잰다. 수식이나 표는
+    짧은 줄이 여러 개라 줄 수로는 본문을 이겨버린다(실측: 생산확산지수의 정의가
+    "= ×100 전체 업종 수"로 잡혔다).
     """
     if not cands:
         return []
+
+    def size(i: int, end: int) -> int:
+        return cum[end] - cum[i + 1] if cum else end - i
+
     spans = [
-        (cands[k + 1][0] if k + 1 < len(cands) else total) - i
+        size(i, cands[k + 1][0] if k + 1 < len(cands) else total)
         for k, (i, _) in enumerate(cands)
     ]
     best: dict[str, int] = {}
@@ -124,7 +140,10 @@ def extract(text: str, toc: list[dict]) -> list[dict]:
         if abs((pno - offset) - names[name]) <= 1:
             marks.append((i, name))
 
-    uniq_marks = pick_marks(marks, len(flat))
+    cum = [0]
+    for ln, _ in flat:
+        cum.append(cum[-1] + len(ln))
+    uniq_marks = pick_marks(marks, len(flat), cum)
 
     out = []
     for k, (i, name) in enumerate(uniq_marks):
