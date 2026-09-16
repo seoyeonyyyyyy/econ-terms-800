@@ -2,7 +2,7 @@ import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import {
   pickSentence, flipAntonym, perturbNumber, crossDefinition,
-  makeOX, maskTerm, makeChoice,
+  makeOX, maskTerm, makeChoice, nameVariants,
 } from "../js/quiz.js";
 
 // pickSentence가 30~120자 문장을 요구하므로 정의문 길이를 실제 데이터에 맞춘다.
@@ -159,5 +159,29 @@ describe("makeChoice", () => {
 
   test("후보가 4개 미만이면 null", () => {
     assert.equal(makeChoice(POOL[0], [POOL[0]], () => 0.5), null);
+  });
+});
+
+describe("nameVariants / maskTerm 누출 방지", () => {
+  test("괄호를 뗀 형태도 가린다", () => {
+    const got = maskTerm(
+      "스탠더드&푸어스는 무디스, 피치와 함께 3대 평가기관이다",
+      "스탠더드&푸어스(S&P)", null);
+    assert.ok(!got.includes("스탠더드&푸어스"), "본문은 괄호 없이 쓴다");
+  });
+
+  test("괄호 안 약어도 가린다", () => {
+    const got = maskTerm("S&P는 신용등급을 매긴다", "스탠더드&푸어스(S&P)", null);
+    assert.ok(!got.includes("S&P"));
+  });
+
+  test("aliases 조각도 가린다", () => {
+    const got = maskTerm("이자를 원금에만 붙이면 단리다", "단리/복리", null, ["단리", "복리"]);
+    assert.ok(!got.includes("단리"));
+  });
+
+  test("긴 변형을 먼저 지운다", () => {
+    const v = nameVariants("가계부실위험지수(HDRI)", null, []);
+    assert.ok(v[0].length >= v[v.length - 1].length);
   });
 });
