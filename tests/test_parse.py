@@ -53,8 +53,6 @@ class TestSplitRelated(unittest.TestCase):
         self.assertEqual(related, [])
         self.assertEqual(definition, "설명만 있다.")
 
-if __name__ == "__main__":
-    unittest.main()
 
 class TestPickMarks(unittest.TestCase):
     def test_본문이_가장_긴_등장을_고른다(self):
@@ -106,3 +104,6 @@ class TestSideIndex(unittest.TestCase):
     def test_줄끝_초성_인덱스를_벗긴다(self):
         page = "온라인 플랫폼을 통해 다수의 개인들로부 ㅋ"
         self.assertEqual(clean_lines(page), ["온라인 플랫폼을 통해 다수의 개인들로부"])
+
+if __name__ == "__main__":
+    unittest.main()
