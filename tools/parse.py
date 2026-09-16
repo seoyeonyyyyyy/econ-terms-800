@@ -2,6 +2,9 @@
 import json, re, sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from tools.schema import build_record
+
 HEADER = "I 경제금융용어 800선"
 PAGE_NO = re.compile(r"^\d{1,3}$")
 CHOSUNG_ONLY = re.compile(r"^[ㄱ-ㅎ]$")
@@ -148,6 +151,8 @@ def main():
     valid = {t["term"] for t in terms}
     for t in terms:
         t["related"] = [r for r in t["related"] if r in valid]
+
+    terms = [build_record(t) for t in terms]
 
     Path("build/raw_terms.json").write_text(
         json.dumps(terms, ensure_ascii=False, indent=1), encoding="utf-8"
