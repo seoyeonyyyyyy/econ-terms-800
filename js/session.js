@@ -38,11 +38,18 @@ function drawCard(container, session) {
     return;
   }
 
+  const starred = store.getProgress(id).starred;
+
   container.innerHTML = `
     <p class="sub">오늘의 학습 ${session.cursor + 1} / ${session.ids.length}</p>
     <div class="card">
+      <button id="card-star" class="card-star" aria-pressed="${starred}"
+              aria-label="중요 표시">${starred ? "★" : "☆"}</button>
       <h2>${esc(t.term)}</h2>
-      <p class="def" id="def" hidden>${esc(t.def)}</p>
+      <div id="meaning" hidden>
+        ${t.summary ? `<p class="summary">${esc(t.summary)}</p>` : ""}
+        <p class="def">${esc(t.def)}</p>
+      </div>
       <button id="reveal">뜻 보기</button>
     </div>
     <div class="card-actions" hidden id="actions">
@@ -52,9 +59,16 @@ function drawCard(container, session) {
   `;
 
   container.querySelector("#reveal").addEventListener("click", (e) => {
-    container.querySelector("#def").hidden = false;
+    container.querySelector("#meaning").hidden = false;
     container.querySelector("#actions").hidden = false;
     e.target.hidden = true;
+  });
+
+  const starBtn = container.querySelector("#card-star");
+  starBtn.addEventListener("click", () => {
+    const on = store.toggleStar(id);
+    starBtn.setAttribute("aria-pressed", String(on));
+    starBtn.textContent = on ? "★" : "☆";
   });
 
   container.querySelector("#no").addEventListener("click", () => advance(container, session, "unknown"));

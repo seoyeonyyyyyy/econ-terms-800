@@ -154,3 +154,27 @@ h2:first-child { margin-top: 0; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* 요약 — 원문을 대체하지 않고 앞에 덧붙인다 */
+.summary {
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  padding: 11px 14px;
+  margin: 14px 0 0;
+  font-size: 15px;
+  line-height: 1.65;
+  text-align: left;
+}
+.card .summary { margin-top: 18px; }
+.card .def { font-size: 13.5px; color: var(--ink-soft); margin-top: 12px; }
+
+/* 학습 카드의 중요 표시 */
+.card { position: relative; }
+.card-star {
+  position: absolute; top: 8px; right: 10px;
+  background: none; border: none; cursor: pointer;
+  font-size: 22px; line-height: 1; padding: 6px;
+  color: var(--ink-soft);
+}
+.card-star[aria-pressed="true"] { color: var(--star); }

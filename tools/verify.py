@@ -59,6 +59,14 @@ def check(terms: list[dict]) -> list[str]:
         if "/" in term and not t["aliases"]:
             errors.append(f"[{term}] 묶음 표제어인데 aliases가 비어 있음")
 
+        summary = t.get("summary", "")
+        if not summary:
+            errors.append(f"[{term}] 요약이 없음")
+        elif not (12 <= len(summary) <= 80):
+            errors.append(f"[{term}] 요약 길이가 12~80자를 벗어남: {len(summary)}자")
+        elif summary in d:
+            errors.append(f"[{term}] 요약이 정의문을 그대로 옮김")
+
     return errors
 
 def main():

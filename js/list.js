@@ -127,6 +127,7 @@ function renderTerm(container, { id }) {
     <h2>${esc(t.term)}</h2>
     ${t.alt ? `<p class="alt">${esc(t.alt)}</p>` : ""}
     <p class="sub">${esc(t.category)} · ${esc(t.subcategory)} · ${t.page}쪽</p>
+    ${t.summary ? `<p class="summary">${esc(t.summary)}</p>` : ""}
     <p class="def">${esc(t.def)}</p>
     ${t.related.length ? `<p class="related">연관 ${t.related.map((r) =>
       `<button data-rel="${esc(r)}">${esc(r)}</button>`).join(" ")}</p>` : ""}
