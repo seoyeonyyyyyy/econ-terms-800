@@ -24,6 +24,16 @@ GRAPHS = {
     "수요탄력성": "elasticity",
     "규모의 경제": "scale",
     "GDP갭": "gdpgap",
+    "통화정책 파급경로": "transmission",
+    "신용창조": "creation",
+    "국제수지(BOP)": "bop",
+    "지급결제시스템": "settlement",
+    "수요견인 인플레이션": "demandpull",
+    "비용인상 인플레이션": "costpush",
+    "예대금리차(예대마진)": "spread",
+    "기회비용": "opportunity",
+    "자산유동화": "abs",
+    "듀레이션": "duration",
 }
 
 def split_paragraphs(text: str, per_para: int = 3, max_chars: int = 250) -> str:

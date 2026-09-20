@@ -216,3 +216,13 @@ h2:first-child { margin-top: 0; }
 
 /* "옳지 않은 것" 보기는 문장이라 길다 — 왼쪽 정렬로 읽히게 */
 .options-long button { text-align: left; line-height: 1.7; padding: 13px 14px; }
+
+/* 학습 카드는 뜻을 펼치면 내용이 길어지므로 가운데 정렬을 푼다 */
+.card #meaning { text-align: left; width: 100%; }
+.card #meaning .formulas, .card #meaning .cf-list { margin-top: 16px; }
+.card .term-head { justify-content: center; }
+
+/* 흐름도의 상자와 화살표 */
+.g-box { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1; }
+.g-arrow { stroke: var(--ink-soft); stroke-width: 1.4; marker-end: url(#arrowhead); fill: none; }
+.g-arrowhead { fill: var(--ink-soft); }

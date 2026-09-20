@@ -72,7 +72,6 @@ function renderHome(container) {
       <button data-go="list">용어장</button>
       <button data-go="quiz" data-mode="ox">OX 퀴즈</button>
       <button data-go="quiz" data-mode="choice">용어 맞히기</button>
-      <button data-go="quiz" data-mode="odd">옳지 않은 것 고르기</button>
       <button data-go="stats">통계</button>
     </div>
   `;

@@ -1,5 +1,6 @@
 import { registerView, getTerms, getTerm, navigate, esc } from "./app.js";
 import { store } from "./store.js";
+import { renderGraph } from "./graphs.js";
 
 const SIZE = 20;
 
@@ -39,16 +40,30 @@ function drawCard(container, session) {
   }
 
   const starred = store.getProgress(id).starred;
+  // 상세 화면과 같은 재료를 쓴다 — 카드에서도 영문명·계산식·그래프·cf.를 본다
+  const cfItems = t.related
+    .map((r) => getTerm(r))
+    .filter(Boolean)
+    .map((r) => `<li><button data-rel="${esc(r.id)}">${esc(r.term)}</button>${
+      r.summary ? ` — <span>${esc(r.summary)}</span>` : ""}</li>`)
+    .join("");
 
   container.innerHTML = `
     <p class="sub">오늘의 학습 ${session.cursor + 1} / ${session.ids.length}</p>
     <div class="card">
       <button id="card-star" class="card-star" aria-pressed="${starred}"
               aria-label="중요 표시">${starred ? "★" : "☆"}</button>
-      <h2>${esc(t.term)}</h2>
+      <h2 class="term-head card-term">${esc(t.term)}${
+        t.alt ? `<span class="term-alt">${esc(t.alt)}</span>` : ""}</h2>
       <div id="meaning" hidden>
         ${t.summary ? `<p class="summary">${esc(t.summary)}</p>` : ""}
         <p class="def">${esc(t.def)}</p>
+        ${t.formulas?.length ? `<div class="formulas">
+          <h3>계산식</h3>
+          ${t.formulas.map((f) => `<p class="formula">${esc(f)}</p>`).join("")}
+        </div>` : ""}
+        ${t.graph ? `<figure class="graph">${renderGraph(t.graph)}</figure>` : ""}
+        ${cfItems ? `<ul class="cf-list">${cfItems}</ul>` : ""}
       </div>
       <button id="reveal">뜻 보기</button>
     </div>
@@ -70,6 +85,9 @@ function drawCard(container, session) {
     starBtn.setAttribute("aria-pressed", String(on));
     starBtn.textContent = on ? "★" : "☆";
   });
+
+  container.querySelectorAll("[data-rel]").forEach((b) =>
+    b.addEventListener("click", () => navigate("term", { id: b.dataset.rel })));
 
   container.querySelector("#no").addEventListener("click", () => advance(container, session, "unknown"));
   container.querySelector("#yes").addEventListener("click", () => advance(container, session, "known"));

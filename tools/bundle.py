@@ -11,7 +11,7 @@ OUT = ROOT / "build" / "econ-terms.html"
 
 # 의존 순서대로. store → filter → quiz(순수 로직) → 화면들 → app
 MODULES = [
-    "js/store.js", "js/filter.js", "js/quiz.js",
+    "js/store.js", "js/filter.js", "js/quiz.js", "js/graphs.js",
     "js/list.js", "js/session.js", "js/quiz-ui.js", "js/stats.js",
     "js/app.js",
 ]
