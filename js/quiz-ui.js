@@ -1,6 +1,6 @@
 import { registerView, getTerms, getTerm, navigate, esc } from "./app.js";
 import { store } from "./store.js";
-import { makeOX, makeChoice } from "./quiz.js";
+import { makeOX, makeChoice, makeOddOne } from "./quiz.js";
 import { CATEGORIES } from "./list.js";
 
 function buildQuestions(mode, params) {
@@ -22,7 +22,9 @@ function buildQuestions(mode, params) {
   if (params.category) pool = pool.filter((t) => t.category === params.category);
 
   const count = params.count === "inf" ? Infinity : Number(params.count || 10);
-  const make = mode === "ox" ? makeOX : makeChoice;
+  const make = mode === "ox" ? makeOX
+             : mode === "odd" ? ((t) => makeOddOne(t))
+             : makeChoice;
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
 
   const out = [];
@@ -36,7 +38,9 @@ function buildQuestions(mode, params) {
 
 function renderSetup(container, params) {
   const mode = params.mode || "ox";
-  const title = mode === "ox" ? "OX 퀴즈" : "용어 맞히기";
+  const title = mode === "ox" ? "OX 퀴즈"
+              : mode === "odd" ? "옳지 않은 것 고르기"
+              : "용어 맞히기";
 
   container.innerHTML = `
     <h2>${title}</h2>
@@ -99,7 +103,7 @@ function renderQuiz(container, params) {
     container.innerHTML = `
       <p class="sub">${index + 1} / ${questions.length}</p>
       <div class="card"><p class="q">${esc(isOX ? q.statement : q.question)}</p></div>
-      <div class="options">
+      <div class="options${mode === "odd" ? " options-long" : ""}">
         ${isOX
           ? `<button data-v="true">O</button><button data-v="false">X</button>`
           : q.options.map((o) => `<button data-v="${esc(o)}">${esc(o)}</button>`).join("")}

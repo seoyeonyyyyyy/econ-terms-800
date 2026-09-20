@@ -2,7 +2,7 @@ import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import {
   pickSentence, flipAntonym, perturbNumber, crossDefinition,
-  makeOX, maskTerm, makeChoice, nameVariants,
+  makeOX, maskTerm, makeChoice, nameVariants, makeOddOne,
 } from "../js/quiz.js";
 
 // pickSentence가 30~120자 문장을 요구하므로 정의문 길이를 실제 데이터에 맞춘다.
@@ -183,5 +183,55 @@ describe("nameVariants / maskTerm 누출 방지", () => {
   test("긴 변형을 먼저 지운다", () => {
     const v = nameVariants("가계부실위험지수(HDRI)", null, []);
     assert.ok(v[0].length >= v[v.length - 1].length);
+  });
+});
+
+describe("makeOddOne — 옳지 않은 것은?", () => {
+  const RICH = {
+    id: "공개시장운영", term: "공개시장운영", alt: null, aliases: [],
+    def: "공개시장운영은 중앙은행이 증권을 매매하여 시중유동성에 영향을 미치는 수단이다. "
+       + "증권을 사들이면 시중 유동성이 증가하고 단기금리는 하락 압력을 받는다. "
+       + "금융시장의 가격메커니즘에 따라 이루어지므로 시장친화적인 방식에 해당한다. "
+       + "한국은행은 이를 연 8회 정례회의에서 정한 방향에 맞추어 수행한다.",
+    related: [], category: "금융상식", subcategory: "통화정책",
+  };
+
+  test("보기 4개 중 정확히 하나가 답이다", () => {
+    const q = makeOddOne(RICH, () => 0.5);
+    assert.equal(q.options.length, 4);
+    assert.ok(q.options.includes(q.answer));
+  });
+
+  test("정답은 원문에 없는 문장이다", () => {
+    const q = makeOddOne(RICH, () => 0.5);
+    const squash = (s) => s.replace(/\s/g, "");
+    assert.ok(!squash(RICH.def).includes(squash(q.answer)), "틀린 보기는 변형된 문장이다");
+  });
+
+  test("나머지 세 보기는 원문 그대로다", () => {
+    const q = makeOddOne(RICH, () => 0.5);
+    const squash = (s) => s.replace(/\s/g, "");
+    const others = q.options.filter((o) => o !== q.answer);
+    assert.equal(others.length, 3);
+    for (const o of others) {
+      assert.ok(squash(RICH.def).includes(squash(o)), `원문에 없음: ${o}`);
+    }
+  });
+
+  test("해설에 원문을 담는다", () => {
+    const q = makeOddOne(RICH, () => 0.5);
+    assert.ok(q.explain.length > 0);
+  });
+
+  test("쓸 만한 문장이 4개가 안 되면 출제하지 않는다", () => {
+    const thin = { ...RICH, def: "짧다. 매우 짧다." };
+    assert.equal(makeOddOne(thin, () => 0.5), null);
+  });
+
+  test("문제에 용어명을 밝힌다", () => {
+    // 이 유형은 무슨 용어인지 알아야 판단할 수 있으므로 가리지 않는다
+    const q = makeOddOne(RICH, () => 0.5);
+    assert.ok(q.question.includes("공개시장운영"));
+    assert.ok(q.question.includes("옳지 않은"));
   });
 });

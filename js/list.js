@@ -1,6 +1,7 @@
 import { registerView, getTerms, getTerm, navigate, esc } from "./app.js";
 import { store } from "./store.js";
 import { filterTerms } from "./filter.js";
+import { renderGraph } from "./graphs.js";
 
 const PAGE = 50;
 
@@ -123,14 +124,25 @@ function renderTerm(container, { id }) {
   if (!t) { container.innerHTML = "<p>용어를 찾을 수 없습니다.</p>"; return; }
   const p = store.getProgress(id);
 
+  const cfItems = t.related
+    .map((r) => getTerm(r))
+    .filter(Boolean)
+    .map((r) => `<li><button data-rel="${esc(r.id)}">${esc(r.term)}</button>${
+      r.summary ? ` — <span>${esc(r.summary)}</span>` : ""}</li>`)
+    .join("");
+
   container.innerHTML = `
-    <h2>${esc(t.term)}</h2>
-    ${t.alt ? `<p class="alt">${esc(t.alt)}</p>` : ""}
+    <h2 class="term-head">${esc(t.term)}${
+      t.alt ? `<span class="term-alt">${esc(t.alt)}</span>` : ""}</h2>
     <p class="sub">${esc(t.category)} · ${esc(t.subcategory)} · ${t.page}쪽</p>
     ${t.summary ? `<p class="summary">${esc(t.summary)}</p>` : ""}
     <p class="def">${esc(t.def)}</p>
-    ${t.related.length ? `<p class="related">연관 ${t.related.map((r) =>
-      `<button data-rel="${esc(r)}">${esc(r)}</button>`).join(" ")}</p>` : ""}
+    ${t.formulas?.length ? `<div class="formulas">
+      <h3>계산식</h3>
+      ${t.formulas.map((f) => `<p class="formula">${esc(f)}</p>`).join("")}
+    </div>` : ""}
+    <div id="graph-slot"></div>
+    ${cfItems ? `<ul class="cf-list">${cfItems}</ul>` : ""}
     <div class="term-actions">
       <button id="t-known" aria-pressed="${p.status === "known"}">
         ${p.status === "known" ? "외움 ●" : "외움으로 표시"}
@@ -148,6 +160,12 @@ function renderTerm(container, { id }) {
     store.toggleStar(id);
     renderTerm(container, { id });
   });
+  const slot = container.querySelector("#graph-slot");
+  if (t.graph && slot) {
+    const svg = renderGraph(t.graph);
+    if (svg) slot.innerHTML = `<figure class="graph">${svg}</figure>`;
+  }
+
   container.querySelectorAll("[data-rel]").forEach((b) =>
     b.addEventListener("click", () => navigate("term", { id: b.dataset.rel })));
 }

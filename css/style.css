@@ -178,3 +178,41 @@ h2:first-child { margin-top: 0; }
   color: var(--ink-soft);
 }
 .card-star[aria-pressed="true"] { color: var(--star); }
+
+/* 용어명 옆 영문명 */
+.term-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+.term-alt { font-size: 12.5px; font-weight: 400; color: var(--ink-soft); }
+
+/* 계산식 */
+.formulas { margin-top: 20px; }
+.formulas h3 { font-size: 13px; color: var(--ink-soft); margin: 0 0 8px; font-weight: 600; }
+.formula {
+  font-family: ui-monospace, Consolas, monospace; font-size: 13px; line-height: 1.75;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  padding: 10px 12px; margin: 0 0 8px; overflow-x: auto; white-space: pre-wrap;
+}
+
+/* 그래프 */
+.graph { margin: 20px 0 0; padding: 0; }
+.graph-svg { width: 100%; max-width: 340px; height: auto; display: block; margin: 0 auto; }
+.g-axis { stroke: var(--ink-soft); stroke-width: 1; }
+.g-guide { stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 3; }
+.g-line { fill: none; stroke: var(--accent); stroke-width: 2; }
+.g-dash { stroke-dasharray: 5 4; opacity: .75; }
+.g-label { font-size: 9px; fill: var(--ink-soft); }
+.g-note { font-size: 8.5px; fill: var(--ink-soft); }
+
+/* cf. 용어 */
+.cf-list { list-style: none; padding: 0; margin: 22px 0 0; }
+.cf-list li {
+  font-size: 13.5px; line-height: 1.7; padding: 7px 0;
+  border-top: 1px solid var(--line); color: var(--ink-soft);
+}
+.cf-list li::before { content: "cf. "; color: var(--ink-soft); font-size: 12px; }
+.cf-list button {
+  background: none; border: none; padding: 0; cursor: pointer;
+  color: var(--accent); font-size: 14px; font-weight: 600;
+}
+
+/* "옳지 않은 것" 보기는 문장이라 길다 — 왼쪽 정렬로 읽히게 */
+.options-long button { text-align: left; line-height: 1.7; padding: 13px 14px; }

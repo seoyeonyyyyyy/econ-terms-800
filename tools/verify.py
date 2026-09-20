@@ -67,6 +67,21 @@ def check(terms: list[dict]) -> list[str]:
         elif summary in d:
             errors.append(f"[{term}] 요약이 정의문을 그대로 옮김")
 
+        # 문단 나누기가 원문을 훼손하지 않았는가
+        joined = "".join((d + " " + " ".join(t.get("formulas") or [])).split())
+        if not joined:
+            errors.append(f"[{term}] 정의문이 비었음")
+
+        for f in (t.get("formulas") or []):
+            if "=" not in f:
+                errors.append(f"[{term}] 계산식에 등호가 없음: {f[:30]}")
+            if re.search(r"=\s*[×÷/]", f):
+                errors.append(f"[{term}] 계산식 조판이 깨짐: {f[:40]}")
+
+        g = t.get("graph")
+        if g is not None and not isinstance(g, str):
+            errors.append(f"[{term}] graph 값이 이상함: {g!r}")
+
     return errors
 
 def main():
