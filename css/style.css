@@ -226,3 +226,30 @@ h2:first-child { margin-top: 0; }
 .g-box { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1; }
 .g-arrow { stroke: var(--ink-soft); stroke-width: 1.4; marker-end: url(#arrowhead); fill: none; }
 .g-arrowhead { fill: var(--ink-soft); }
+
+/* 정리본 — 라벨과 내용을 나란히 */
+.outline { list-style: none; padding: 0; margin: 16px 0 0; }
+.outline li {
+  display: grid; grid-template-columns: 62px 1fr; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--line); align-items: start;
+}
+.outline li:last-child { border-bottom: none; }
+.outline b {
+  font-size: 12.5px; font-weight: 600; color: var(--accent);
+  padding-top: 2px; word-break: keep-all;
+}
+.outline span { font-size: 14.5px; line-height: 1.7; }
+
+/* 원문은 접어 둔다 */
+.raw { margin-top: 14px; }
+.raw summary {
+  cursor: pointer; font-size: 13px; color: var(--ink-soft);
+  padding: 7px 0; list-style: none;
+}
+.raw summary::before { content: "▸ "; }
+.raw[open] summary::before { content: "▾ "; }
+.raw .def { margin-top: 4px; font-size: 14px; color: var(--ink-soft); }
+
+@media (max-width: 400px) {
+  .outline li { grid-template-columns: 54px 1fr; gap: 8px; }
+}

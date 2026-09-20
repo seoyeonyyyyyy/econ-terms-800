@@ -119,6 +119,22 @@ function renderChips(host, criteria, onChange) {
   row("초성", "chosung", [..."ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ"]);
 }
 
+/** 정리본 + 원문. 정리본이 없으면 원문만 보여준다. */
+export function renderBody(t) {
+  const hasOutline = t.outline?.length;
+  if (!hasOutline) return `<p class="def">${esc(t.def)}</p>`;
+
+  return `
+    <ul class="outline">
+      ${t.outline.map(([label, text]) =>
+        `<li><b>${esc(label)}</b><span>${esc(text)}</span></li>`).join("")}
+    </ul>
+    <details class="raw">
+      <summary>원문 보기</summary>
+      <p class="def">${esc(t.def)}</p>
+    </details>`;
+}
+
 function renderTerm(container, { id }) {
   const t = getTerm(id);
   if (!t) { container.innerHTML = "<p>용어를 찾을 수 없습니다.</p>"; return; }
@@ -136,7 +152,7 @@ function renderTerm(container, { id }) {
       t.alt ? `<span class="term-alt">${esc(t.alt)}</span>` : ""}</h2>
     <p class="sub">${esc(t.category)} · ${esc(t.subcategory)} · ${t.page}쪽</p>
     ${t.summary ? `<p class="summary">${esc(t.summary)}</p>` : ""}
-    <p class="def">${esc(t.def)}</p>
+    ${renderBody(t)}
     ${t.formulas?.length ? `<div class="formulas">
       <h3>계산식</h3>
       ${t.formulas.map((f) => `<p class="formula">${esc(f)}</p>`).join("")}

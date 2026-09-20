@@ -1,6 +1,7 @@
 import { registerView, getTerms, getTerm, navigate, esc } from "./app.js";
 import { store } from "./store.js";
 import { renderGraph } from "./graphs.js";
+import { renderBody } from "./list.js";
 
 const SIZE = 20;
 
@@ -57,7 +58,7 @@ function drawCard(container, session) {
         t.alt ? `<span class="term-alt">${esc(t.alt)}</span>` : ""}</h2>
       <div id="meaning" hidden>
         ${t.summary ? `<p class="summary">${esc(t.summary)}</p>` : ""}
-        <p class="def">${esc(t.def)}</p>
+        ${renderBody(t)}
         ${t.formulas?.length ? `<div class="formulas">
           <h3>계산식</h3>
           ${t.formulas.map((f) => `<p class="formula">${esc(f)}</p>`).join("")}
