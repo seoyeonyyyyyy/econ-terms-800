@@ -1,7 +1,7 @@
 // 앱을 고치면 사용자에게 바로 닿아야 한다.
 // 전부 캐시 우선으로 두면 새 코드를 배포해도 옛 화면이 계속 나온다(실측).
 // 그래서 코드·화면은 네트워크 우선, 덩치 크고 잘 안 바뀌는 용어 데이터만 캐시 우선으로 둔다.
-const VERSION = "v3";
+const VERSION = "v4";
 const CACHE = `econ-${VERSION}`;
 
 const ASSETS = [
